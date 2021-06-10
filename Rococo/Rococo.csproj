@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Rococo.DataAccess\Rococo.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

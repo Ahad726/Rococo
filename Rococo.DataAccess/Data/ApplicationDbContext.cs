@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Rococo.Data
+namespace Rococo.DataAccess.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
