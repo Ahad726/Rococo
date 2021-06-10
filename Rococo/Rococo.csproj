@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rococo.DataAccess\Rococo.DataAccess.csproj" />
+    <ProjectReference Include="..\Rococo.Models\Rococo.Models.csproj" />
+    <ProjectReference Include="..\Rococo.Utility\Rococo.Utility.csproj" />
   </ItemGroup>
 
 </Project>

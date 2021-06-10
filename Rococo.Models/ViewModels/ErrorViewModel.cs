@@ -1,6 +1,6 @@
 using System;
 
-namespace Rococo.Models
+namespace Rococo.Models.ViewModels
 {
     public class ErrorViewModel
     {
