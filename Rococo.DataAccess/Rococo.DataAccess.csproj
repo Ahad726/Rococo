@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Rococo.Models\Rococo.Models.csproj" />
     <ProjectReference Include="..\Rococo.Utility\Rococo.Utility.csproj" />
   </ItemGroup>
