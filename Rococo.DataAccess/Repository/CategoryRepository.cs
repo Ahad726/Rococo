@@ -24,7 +24,6 @@ namespace Rococo.DataAccess.Repository
 
             if (categoryFromDb != null)
                 categoryFromDb.Name = category.Name;
-            _dbContext.SaveChanges();
             
         }
     }

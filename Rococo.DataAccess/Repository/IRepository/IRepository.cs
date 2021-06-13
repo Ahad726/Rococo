@@ -17,11 +17,6 @@ namespace Rococo.DataAccess.Repository.IRepository
 
             );
 
-        T GetAll(
-           Expression<Func<T, bool>> filter = null,
-           string includeProperties = null
-
-           );
 
         void Add(T entity);
         void Remove(int id);
