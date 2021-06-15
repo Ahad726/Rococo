@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Rococo.DataAccess.Repository.IRepository;
 using Rococo.Models;
+using Rococo.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,13 +29,17 @@ namespace Rococo.Areas.Admin.Controllers
         public IActionResult Upsert(int? id)
         {
             CoverType coverType = new CoverType();
+
             if (id == null)
             {
                 // This if for create new
                 return View(coverType);
             }
+
             //this is for edit
-            coverType = _unitOfWork.CoverType.Get(id.GetValueOrDefault());
+            var parameter = new DynamicParameters();
+            parameter.Add("@Id", id);
+            coverType = _unitOfWork.SP_Call.OneRecode<CoverType>(SD.Proc_CoverType_Get, parameter);
             if (coverType == null)
             {
                 return NotFound();
@@ -46,20 +52,24 @@ namespace Rococo.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Upsert(CoverType coverType)
         {
+            var parameter = new DynamicParameters();
+            parameter.Add("@Name", coverType.Name);
+
             if (ModelState.IsValid)
             {
                 if (coverType.Id == 0)
                 {
                     // Create
-                    _unitOfWork.CoverType.Add(coverType);
+                    _unitOfWork.SP_Call.Execute(SD.Proc_CoverType_Create, parameter);
                     
                 }
                 else
                 {
                     //Edit
-                    _unitOfWork.CoverType.Update(coverType);
+                    parameter.Add("@Id", coverType.Id);
+                    _unitOfWork.SP_Call.Execute(SD.Proc_CoverType_Update, parameter);
                 }
-                _unitOfWork.Save();
+
                 return RedirectToAction(nameof(Index));
             }
             return View(coverType);
@@ -69,18 +79,19 @@ namespace Rococo.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var allCoverTypes = _unitOfWork.CoverType.GetAll();
+            var allCoverTypes = _unitOfWork.SP_Call.List<CoverType>(SD.Proc_CoverType_GetAll);
             return Json(new { data = allCoverTypes });
         }
 
         [HttpDelete]
         public IActionResult Delete(int id)
         {
-            var coverType = _unitOfWork.CoverType.Get(id);
+            var parameter = new DynamicParameters();
+            parameter.Add("@Id", id);
+            var coverType = _unitOfWork.SP_Call.OneRecode<CoverType>(SD.Proc_CoverType_Get, parameter);
             if (coverType != null)
             {
-                _unitOfWork.CoverType.Remove(coverType);
-                _unitOfWork.Save();
+                _unitOfWork.SP_Call.Execute(SD.Proc_CoverType_Delete, parameter);
                 return Json(new { success = true, message = "Delete successful" });
             }
             return Json(new { success = false, message = "Error while deleting" });
