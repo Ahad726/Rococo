@@ -11,6 +11,7 @@ namespace Rococo.DataAccess.Repository
         private readonly ApplicationDbContext _dbContext;
 
         public ICategoryRepository Category { get; private set; }
+        public ICoverTypeRepository CoverType { get; set; }
         public ISP_Call SP_Call { get; private set; }
 
 
@@ -19,6 +20,7 @@ namespace Rococo.DataAccess.Repository
             _dbContext = dbContext;
             Category = new CategoryRepository(_dbContext);
             SP_Call = new SP_Call(_dbContext);
+            CoverType = new CoverTypeRepository(_dbContext);
         }
 
         public void Dispose()
