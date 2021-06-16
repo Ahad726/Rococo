@@ -36,7 +36,7 @@ namespace Rococo.Models
         public Category Category { get; set; }
 
         [Required]
-        public int CaoverTypeId { get; set; }
+        public int CoverTypeId { get; set; }
         [ForeignKey("CoverTypeId")]
         public CoverType CoverType { get; set; }
 
