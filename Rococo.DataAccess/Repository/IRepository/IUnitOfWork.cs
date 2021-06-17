@@ -10,6 +10,7 @@ namespace Rococo.DataAccess.Repository.IRepository
         ICoverTypeRepository CoverType { get; set; }
         IProductRepository Product { get; set; }
         ICompanyRepository Company { get; set; }
+        IApplicationUserRepository ApplicationUser { get; set; }
         ISP_Call SP_Call { get;}
         void Save();
     }
