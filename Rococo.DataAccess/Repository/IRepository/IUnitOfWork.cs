@@ -9,6 +9,7 @@ namespace Rococo.DataAccess.Repository.IRepository
          ICategoryRepository Category { get;}
         ICoverTypeRepository CoverType { get; set; }
         IProductRepository Product { get; set; }
+        ICompanyRepository Company { get; set; }
         ISP_Call SP_Call { get;}
         void Save();
     }

@@ -13,7 +13,9 @@ namespace Rococo.DataAccess.Repository
         public ICategoryRepository Category { get; private set; }
         public ICoverTypeRepository CoverType { get; set; }
         public IProductRepository Product { get; set; }
+        public ICompanyRepository Company { get; set; }
         public ISP_Call SP_Call { get; private set; }
+
 
 
         public UnitOfWork(ApplicationDbContext dbContext)
@@ -23,6 +25,7 @@ namespace Rococo.DataAccess.Repository
             SP_Call = new SP_Call(_dbContext);
             CoverType = new CoverTypeRepository(_dbContext);
             Product = new ProductRepository(_dbContext);
+            Company = new CompanyRepository(_dbContext);
         }
 
         public void Dispose()
