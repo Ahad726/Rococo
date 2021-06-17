@@ -22,6 +22,7 @@ namespace Rococo.DataAccess.Repository
             Category = new CategoryRepository(_dbContext);
             SP_Call = new SP_Call(_dbContext);
             CoverType = new CoverTypeRepository(_dbContext);
+            Product = new ProductRepository(_dbContext);
         }
 
         public void Dispose()

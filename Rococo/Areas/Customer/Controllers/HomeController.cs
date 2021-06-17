@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Rococo.DataAccess.Repository.IRepository;
 using Rococo.Models.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -13,15 +14,18 @@ namespace Rococo.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork )
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var allProducts = _unitOfWork.Product.GetAll(includeProperties: "Category,CoverType");
+            return View(allProducts);
         }
 
         public IActionResult Privacy()

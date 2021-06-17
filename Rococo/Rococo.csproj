@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Rococo.Utility\Rococo.Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\products\" />
+  </ItemGroup>
+
 </Project>
