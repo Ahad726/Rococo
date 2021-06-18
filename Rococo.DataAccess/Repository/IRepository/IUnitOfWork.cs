@@ -6,7 +6,7 @@ namespace Rococo.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork : IDisposable
     {
-         ICategoryRepository Category { get;}
+        ICategoryRepository Category { get;}
         ICoverTypeRepository CoverType { get; set; }
         IProductRepository Product { get; set; }
         ICompanyRepository Company { get; set; }
