@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -33,6 +34,8 @@ namespace Rococo.Models.ViewModels
         public int? CompanyId { get; set; }
         public string Role { get; set; }
         public string ReturnUrl { get; set; }
+        public IEnumerable<SelectListItem> CompanyList { get; set; }
+        public IEnumerable<SelectListItem> RoleList { get; set; }
 
 
     }
