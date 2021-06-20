@@ -60,7 +60,7 @@ namespace Rococo.Areas.Customer.Controllers
             };
 
             return View(registerModel);
-            
+
         }
 
         [HttpPost]
@@ -68,11 +68,11 @@ namespace Rococo.Areas.Customer.Controllers
         public async Task<IActionResult> Register(RegisterModel model)
         {
             model.ReturnUrl = model.ReturnUrl ?? Url.Content("~/");
-           
+
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser 
-                { 
+                var user = new ApplicationUser
+                {
                     UserName = model.Email,
                     Email = model.Email,
                     CompanyId = model.CompanyId,
@@ -89,7 +89,7 @@ namespace Rococo.Areas.Customer.Controllers
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    if (! await _roleManager.RoleExistsAsync(SD.Role_Admin))
+                    if (!await _roleManager.RoleExistsAsync(SD.Role_Admin))
                     {
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
                     }
@@ -106,7 +106,36 @@ namespace Rococo.Areas.Customer.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_User_Indi));
                     }
 
-                    await _userManager.AddToRoleAsync(user, SD.Role_Admin);
+                    if (user.Role == null)
+                    {
+                        await _userManager.AddToRoleAsync(user, SD.Role_User_Indi);
+                    }
+                    else
+                    {
+                        if (user.CompanyId > 0)
+                        {
+                            await _userManager.AddToRoleAsync(user, SD.Role_User_Comp);
+                        }
+                        await _userManager.AddToRoleAsync(user, user.Role);
+                    }
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        return RedirectToAction("RegisterConfirmation", new { email = model.Email });
+                    }
+                    else
+                    {
+                        if (user.Role == null)
+                        {
+                            await _signInManager.SignInAsync(user,isPersistent: false);
+                            return LocalRedirect(model.ReturnUrl);
+                        }
+                        else
+                        {
+                            //admin is registering new user
+                            return RedirectToAction(nameof(Index), "User", new { Area = "Admin" });
+                        }
+                    }
                 }
                 foreach (var error in result.Errors)
                 {
@@ -159,6 +188,19 @@ namespace Rococo.Areas.Customer.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        public async Task<IActionResult> Logout(string returnUrl = null)
+        {
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            if (returnUrl != null)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
         }
     }
 }
