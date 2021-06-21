@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rococo.DataAccess.Repository.IRepository;
 using Rococo.Models;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace Rococo.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin )]
     public class CoverTypeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

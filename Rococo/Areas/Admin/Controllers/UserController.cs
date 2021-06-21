@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Rococo.DataAccess.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Rococo.Utility;
 
 namespace Rococo.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin )]
     public class UserController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

@@ -205,5 +205,10 @@ namespace Rococo.Areas.Customer.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
         }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

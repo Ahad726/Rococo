@@ -41,6 +41,13 @@ namespace Rococo
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Customer/Account/Login";
+                options.AccessDeniedPath = $"/Customer/Account/AccessDenied";
+
+            }
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
