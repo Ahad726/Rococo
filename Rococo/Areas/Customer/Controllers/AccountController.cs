@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -205,7 +206,7 @@ namespace Rococo.Areas.Customer.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
         }
-
+        [Authorize]
         public IActionResult AccessDenied()
         {
             return View();
