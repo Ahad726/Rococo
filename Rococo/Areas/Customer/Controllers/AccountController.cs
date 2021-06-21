@@ -67,7 +67,7 @@ namespace Rococo.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            model.ReturnUrl = model.ReturnUrl ?? Url.Content("~/");
+            model.ReturnUrl ??=  Url.Content("~/");
 
             if (ModelState.IsValid)
             {
@@ -116,7 +116,10 @@ namespace Rococo.Areas.Customer.Controllers
                         {
                             await _userManager.AddToRoleAsync(user, SD.Role_User_Comp);
                         }
-                        await _userManager.AddToRoleAsync(user, user.Role);
+                        var role = _roleManager.Roles.Where(x => x.Id == user.Role).FirstOrDefault();
+
+                        await _userManager.AddToRoleAsync(user, role.Name);
+
                     }
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
@@ -127,7 +130,7 @@ namespace Rococo.Areas.Customer.Controllers
                     {
                         if (user.Role == null)
                         {
-                            await _signInManager.SignInAsync(user,isPersistent: false);
+                            await _signInManager.SignInAsync(user, isPersistent: false);
                             return LocalRedirect(model.ReturnUrl);
                         }
                         else
@@ -166,7 +169,7 @@ namespace Rococo.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            model.ReturnUrl = model.ReturnUrl ?? Url.Content("~/");
+            model.ReturnUrl ??= Url.Content("~/");
 
             if (ModelState.IsValid)
             {
