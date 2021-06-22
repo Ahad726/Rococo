@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -37,6 +38,7 @@ namespace Rococo.Models.ViewModels
         public IEnumerable<SelectListItem> CompanyList { get; set; }
         public IEnumerable<SelectListItem> RoleList { get; set; }
 
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
     }
 }

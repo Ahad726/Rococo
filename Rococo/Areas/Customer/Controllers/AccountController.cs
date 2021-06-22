@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Rococo.Areas.Customer.Controllers
@@ -43,7 +44,7 @@ namespace Rococo.Areas.Customer.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Register(string returnUrl = null)
+        public async Task<IActionResult> RegisterAsync(string returnUrl = null)
         {
             var registerModel = new RegisterModel
             {
@@ -57,7 +58,8 @@ namespace Rococo.Areas.Customer.Controllers
                 {
                     Text = i.Name,
                     Value = i.Id.ToString()
-                })
+                }),
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
             };
 
             return View(registerModel);
@@ -68,7 +70,7 @@ namespace Rococo.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            model.ReturnUrl ??=  Url.Content("~/");
+            model.ReturnUrl ??= Url.Content("~/");
 
             if (ModelState.IsValid)
             {
@@ -156,7 +158,8 @@ namespace Rococo.Areas.Customer.Controllers
         {
             var model = new LoginModel
             {
-                ReturnUrl = returnUrl ?? Url.Content("~/")
+                ReturnUrl = returnUrl ?? Url.Content("~/"),
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
 
             };
 
@@ -210,6 +213,76 @@ namespace Rococo.Areas.Customer.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        public IActionResult ExternalLogin(string provider, string returnUrl) // value is maped to provider here as name = "provider"
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return new ChallengeResult(provider, properties); // take us to google signin page.
+        }
+
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null) // Google call this method.
+        {
+            returnUrl ??= Url.Content("~/");
+
+            LoginModel loginModel = new LoginModel
+            {
+                ReturnUrl = returnUrl,
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            };
+
+            if (remoteError != null)
+            {
+                ModelState.AddModelError("", $"Error from external provider: {remoteError}");
+                return View("Join", loginModel);
+            }
+
+            var userInfo = await _signInManager.GetExternalLoginInfoAsync(); // Google gives userInfo
+            if (userInfo == null)
+            {
+                ModelState.AddModelError("", "Error loading external login information");
+                return View("Join", loginModel);
+            }
+
+            var signinResult = await _signInManager.ExternalLoginSignInAsync(userInfo.LoginProvider, userInfo.ProviderKey,
+                isPersistent: false, bypassTwoFactor: true); // Check AspNetUserLogin table to find corresponding entry to sign the user in.
+
+
+            var email = userInfo.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (signinResult.Succeeded)
+            {
+                return RedirectToAction("Index", "Home", new { Area = "Customer" });
+            }
+            else
+            {
+                if (email != null) // user has local account?
+                {
+                    if (user == null) // no local user account found
+                    {
+                        user = new ApplicationUser { UserName = email, Email = email };
+                        var result = await _userManager.CreateAsync(user); // Create new user to AspNetUsers table
+
+                        if (!result.Succeeded)
+                        {
+                            ViewBag.ErrorTitle = $"Failed to create new user";
+                            return View("Error");
+                        }
+
+                    }
+                    await _userManager.AddLoginAsync(user, userInfo); // Add user entry to AspNetUserLogin table.
+                    await _signInManager.SignInAsync(user, isPersistent: false); // sign the user in.
+                    return RedirectToAction("Register", user);
+                    //return LocalRedirect(returnUrl);
+                }
+
+                // If we do not receive email from [External Login Provider]
+                ViewBag.ErrorTitle = $"Email claim not received from {userInfo.LoginProvider}";
+                return View("Error");
+            }
         }
     }
 }
