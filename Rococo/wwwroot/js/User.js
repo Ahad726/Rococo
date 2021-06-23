@@ -30,6 +30,9 @@ function loadDataTable() {
                                 <a onclick=LockUnlock('${data.id}') class="btn btn-danger text-white" style="cursor:pointer; width:100px;">
                                     <i class="fas fa-lock-open"></i>  Unlock
                                 </a>
+                                <a onclick=Delete("${data.id}") class="btn btn-danger text-white" style="cursor:pointer;  width:100px;">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
                             </div>
                            `;
                     }
@@ -45,7 +48,7 @@ function loadDataTable() {
 
                 }, "width": "25%"
             }
-        ]   
+        ]
     });
 }
 
@@ -66,6 +69,23 @@ function LockUnlock(id) {
             }
         }
     });
+}
 
+function Delete(id) {
 
+    $.ajax({
+        type: "POST",
+        url: '/Admin/User/Delete',
+        data: JSON.stringify(id),
+        contentType: "application/json",
+        success: function (data) {
+            if (data.success) {
+                toastr.success(data.message);
+                dataTable.ajax.reload();
+            }
+            else {
+                toastr.error(data.message);
+            }
+        }
+    });
 }

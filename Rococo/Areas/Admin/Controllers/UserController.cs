@@ -79,6 +79,24 @@ namespace Rococo.Areas.Admin.Controllers
 
             return Json(new { success = true, message });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromBody] string id)
+        {
+            var message = string.Empty;
+            var user = _userManager.Users.Where(x => x.Id == id).FirstOrDefault();
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Erroe while deleting user" });
+            }
+
+            // user lockEnd property modified. Update now.
+            await _userManager.DeleteAsync(user);
+            message = "User delete successful";
+
+            return Json(new { success = true, message });
+        }
+
         #endregion
     }
 }
