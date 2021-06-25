@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Rococo.DataAccess.Repository.IRepository;
 using Rococo.Models;
@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace Rococo.Areas.Customer.Controllers
@@ -120,8 +122,26 @@ namespace Rococo.Areas.Customer.Controllers
                         var role = _roleManager.Roles.Where(x => x.Id == user.Role).FirstOrDefault();
 
                         await _userManager.AddToRoleAsync(user, role.Name);
-
                     }
+
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Action(
+                        nameof(ConfirmEmail),
+                        "Account",
+                        values: new { area = "Customer", userId = user.Id, code = code },
+                        protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(new List<Message>
+                    {
+                        new Message
+                        {
+                            Receiver = model.Email,
+                            Subject = "Confirm your email",
+                            Body =  $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
+                        }
+                    });                        
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -209,6 +229,26 @@ namespace Rococo.Areas.Customer.Controllers
         [Authorize]
         public IActionResult AccessDenied()
         {
+            return View();
+        }
+
+       
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return RedirectToAction("Register");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{userId}'.");
+            }
+
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            ViewBag.StatusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
             return View();
         }
     }
