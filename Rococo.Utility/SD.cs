@@ -11,6 +11,7 @@ namespace Rococo.Utility
         public const string Proc_CoverType_GetAll = "usp_GetCoverTypes";
         public const string Proc_CoverType_Update = "usp_UpdateCoverType";
         public const string Proc_CoverType_Delete = "usp_DeleteCoverType";
+        public const string ssShoppingCartKey = "Shopping Cart Session";
 
         public const string Role_User_Indi = "Individual Customer";
         public const string Role_User_Comp = "Company Customer";

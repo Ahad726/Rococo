@@ -10,6 +10,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Rococo.Utility;
 
 namespace Rococo.Areas.Customer.Controllers
 {
@@ -73,6 +75,13 @@ namespace Rococo.Areas.Customer.Controllers
                     _unitOfWork.ShoppingCart.Update(cartFromDb);
                 }
                 _unitOfWork.Save();
+
+                // save user's all products count to session
+                var count = _unitOfWork.ShoppingCart
+                    .GetAll(c => c.ApplicationUserId == shoppingCartObj.ApplicationUserId)
+                    .ToList().Count();
+                HttpContext.Session.SetInt32(SD.ssShoppingCartKey, count);
+
                 return RedirectToAction(nameof(Index));
             }
             else
