@@ -1,4 +1,7 @@
-﻿@using Rococo.Utility 
+﻿@using Rococo.Utility
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +59,27 @@
                                 </div>
                             </li>
                         }
+                        @{
+                            var ssCartSessionVal = HttpContextAccessor.HttpContext.Session.GetInt32(SD.ssShoppingCartKey);
+                            if (ssCartSessionVal != null)
+                            {
+                                <li style="color:white">
+                                    <a asp-area="Customer" asp-controller="Cart" asp-action="Index" class="nav-link">
+                                        <i class="fas fa-shopping-cart"></i> &nbsp;(@ssCartSessionVal)
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
 
+                                <li style="color:white">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-shopping-cart"></i> &nbsp;(0)
+                                    </a>
+                                </li>
+
+                            }
+                        }
                     </ul>
                 </div>
             </div>

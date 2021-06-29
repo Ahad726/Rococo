@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -70,7 +71,7 @@ namespace Rococo.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            model.ReturnUrl ??=  Url.Content("~/");
+            model.ReturnUrl ??= Url.Content("~/");
 
             if (ModelState.IsValid)
             {
@@ -141,7 +142,7 @@ namespace Rococo.Areas.Customer.Controllers
                             Subject = "Confirm your email",
                             Body =  $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
                         }
-                    });                        
+                    });
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -200,7 +201,18 @@ namespace Rococo.Areas.Customer.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    // return RedirectToAction(nameof(HomeController.Index),"Home");
+
+                    //Get user id
+                    var user = _unitOfWork.ApplicationUser.GetAll(u => u.Email == model.Email).FirstOrDefault();
+
+                    // Get user's all products count and 
+                    var count = _unitOfWork.ShoppingCart
+                        .GetAll(c => c.ApplicationUserId == user.Id)
+                        .ToList().Count();
+
+                    //save the count to session
+                    HttpContext.Session.SetInt32(SD.ssShoppingCartKey, count);
+
                     return LocalRedirect(model.ReturnUrl);
                 }
                 else
@@ -216,6 +228,8 @@ namespace Rococo.Areas.Customer.Controllers
 
         public async Task<IActionResult> Logout(string returnUrl = null)
         {
+            HttpContext.Session.Remove(SD.ssShoppingCartKey);
+
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             if (returnUrl != null)
             {
@@ -232,7 +246,7 @@ namespace Rococo.Areas.Customer.Controllers
             return View();
         }
 
-       
+
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
             if (userId == null || code == null)
