@@ -11,6 +11,9 @@ namespace Rococo.DataAccess.Repository.IRepository
         IProductRepository Product { get; set; }
         ICompanyRepository Company { get; set; }
         IApplicationUserRepository ApplicationUser { get; set; }
+        IShoppingCartRepository ShoppingCart { get; set; }
+        IOrderHeaderRepository OrderHeader { get; set; }
+        IOrderDetailsRepository OrderDetails { get; set; }
         ISP_Call SP_Call { get;}
         void Save();
     }
