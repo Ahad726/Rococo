@@ -30,6 +30,22 @@ namespace Rococo.Areas.Customer.Controllers
         public IActionResult Index()
         {
             var allProducts = _unitOfWork.Product.GetAll(includeProperties: "Category,CoverType");
+
+            // Get User claim
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim != null)
+            {
+                // Get user's all products count and 
+                var count = _unitOfWork.ShoppingCart
+                    .GetAll(c => c.ApplicationUserId == claim.Value)
+                    .ToList().Count();
+
+                //save the count to session
+                HttpContext.Session.SetInt32(SD.ssShoppingCartKey, count);
+            }
+
             return View(allProducts);
         }
 
