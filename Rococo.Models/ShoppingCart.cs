@@ -11,11 +11,16 @@ namespace Rococo.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]  // Also Forces Cascade delete
         public string ApplicationUserId { get; set; }
+       
         [ForeignKey("ApplicationUserId")]
         public ApplicationUser ApplicationUser { get; set; }
 
+
+        [Required]  //<======= Forces Cascade delete
         public int ProductId { get; set; }
+       
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
 

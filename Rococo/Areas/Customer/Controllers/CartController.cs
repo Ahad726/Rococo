@@ -49,7 +49,7 @@ namespace Rococo.Areas.Customer.Controllers
             {
                 OrderHeader = new OrderHeader(),
                 ListCart = _unitOfWork.ShoppingCart
-                .GetAll(u => u.ApplicationUserId == claim.Value,includeProperties:"Product")
+                .GetAll(u => u.ApplicationUserId == claim.Value, includeProperties: "Product")
             };
 
             shoppingCartVM.OrderHeader.OrderTotal = 0;
@@ -74,10 +74,45 @@ namespace Rococo.Areas.Customer.Controllers
                         list.Product.Description = list.Product.Description.Substring(0, 99) + "...";
                     }
                 }
-               
+
             }
 
             return View(shoppingCartVM);
+        }
+
+        [HttpPost]
+        [ActionName("Index")]
+        public async Task<IActionResult> IndexPost()
+        {
+            // Get User claim
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var user = _userManager.Users.FirstOrDefault(u => u.Id == claim.Value);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Verification email is empty!");
+            }
+
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.Action(
+               "ConfirmEmail",
+                "Account",
+                values: new { area = "Customer", userId = user.Id, code = code },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(new List<Message>
+            {
+                        new Message
+                        {
+                            Receiver = user.Email,
+                            Subject = "Confirm your email",
+                            Body =  $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
+                        }
+             });
+
+            return RedirectToAction(nameof(Index));
         }
 
     }
