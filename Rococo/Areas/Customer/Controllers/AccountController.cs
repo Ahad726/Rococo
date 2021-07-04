@@ -169,6 +169,17 @@ namespace Rococo.Areas.Customer.Controllers
             }
 
             // If we got this far, something failed, redisplay form
+            // regenerate select List in view
+            model.CompanyList = _unitOfWork.Company.GetAll().Select(i => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+            model.RoleList = _roleManager.Roles.Where(x => x.Name != SD.Role_User_Indi).Select(i => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
             return View(model);
         }
 
