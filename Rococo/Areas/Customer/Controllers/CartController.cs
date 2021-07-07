@@ -115,5 +115,21 @@ namespace Rococo.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+        public IActionResult Plus(int cartId)
+        {
+            // get the cart by id including specific product with foreighKey relation
+            var cart = _unitOfWork.ShoppingCart.GetAll(c => c.Id == cartId, includeProperties: "Product").FirstOrDefault();
+
+            // increase count by 1
+            cart.Count += 1;
+
+            // update the price
+            cart.Price = SD.GetPriceBasedOnQuantity(cart.Count, cart.Product.Price,
+                cart.Product.Price50, cart.Product.Price100);
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
