@@ -1,10 +1,16 @@
 ﻿@model Rococo.Models.ShoppingCart
-@using System.Security.Claims 
+@using System.Security.Claims
 
 @{
     var claimsIdentity = (ClaimsIdentity)User.Identity;
     var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-    var userId = claim.Value;
+    var userId = string.Empty;
+    if (claim != null)
+    {
+         userId = claim.Value;
+
+    }
+
 }
 <form method="post">
     <input hidden asp-for="ProductId" />

@@ -131,5 +131,47 @@ namespace Rococo.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Minus(int cartId)
+        {
+            // get the cart by id including specific product with foreighKey relation
+            var cart = _unitOfWork.ShoppingCart.GetAll(c => c.Id == cartId, includeProperties: "Product").FirstOrDefault();
+
+            // Decrease count by 1
+            cart.Count -= 1;
+
+            if (cart.Count == 0)
+            {
+                // Remove the item from the cart
+                return RedirectToAction(nameof(Remove),new { cartId });
+            }
+            else
+            {
+                // item count decreased. calculate new price
+                cart.Price = SD.GetPriceBasedOnQuantity(cart.Count, cart.Product.Price,
+                cart.Product.Price50, cart.Product.Price100);
+                _unitOfWork.Save();
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public IActionResult Remove(int cartId)
+        {
+            // get the cart by id including specific product with foreighKey relation
+            var cart = _unitOfWork.ShoppingCart.GetAll(c => c.Id == cartId, includeProperties: "Product").FirstOrDefault();
+
+            _unitOfWork.ShoppingCart.Remove(cartId);
+            _unitOfWork.Save();
+
+            // Get user's all products count and 
+            var count = _unitOfWork.ShoppingCart
+                .GetAll(c => c.ApplicationUserId == cart.ApplicationUserId)
+                .ToList().Count();
+
+            //save the count to session
+            HttpContext.Session.SetInt32(SD.ssShoppingCartKey, count);
+
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
