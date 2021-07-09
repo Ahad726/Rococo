@@ -173,5 +173,39 @@ namespace Rococo.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Summary()
+        {
+            // Get User claim
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            var shoppingCartVM = new ShoppingCartVM
+            {
+                OrderHeader = new OrderHeader(),
+                ListCart = _unitOfWork.ShoppingCart.GetAll(c => c.ApplicationUserId == claim.Value,
+                                                        includeProperties: "Product")
+            };
+
+            shoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser
+                                                            .GetAll(u => u.Id == claim.Value,includeProperties:"Company")
+                                                            .FirstOrDefault();
+            foreach (var list in shoppingCartVM.ListCart)
+            {
+                list.Price = SD.GetPriceBasedOnQuantity(list.Count,
+                    list.Product.Price, list.Product.Price50,
+                    list.Product.Price100);
+                shoppingCartVM.OrderHeader.OrderTotal += list.Count * list.Price;
+            }
+
+            shoppingCartVM.OrderHeader.Name = shoppingCartVM.OrderHeader.ApplicationUser.Name;
+            shoppingCartVM.OrderHeader.PhoneNumber = shoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
+            shoppingCartVM.OrderHeader.StreetAddress = shoppingCartVM.OrderHeader.ApplicationUser.StreetAddress;
+            shoppingCartVM.OrderHeader.City = shoppingCartVM.OrderHeader.ApplicationUser.City;
+            shoppingCartVM.OrderHeader.State = shoppingCartVM.OrderHeader.ApplicationUser.State;
+            shoppingCartVM.OrderHeader.PostalCode = shoppingCartVM.OrderHeader.ApplicationUser.PostalCode;
+
+            return View(shoppingCartVM);
+        }
+
     }
 }
