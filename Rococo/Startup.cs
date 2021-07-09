@@ -11,6 +11,7 @@ using Rococo.DataAccess.Data;
 using Rococo.DataAccess.Repository;
 using Rococo.DataAccess.Repository.IRepository;
 using Rococo.Utility;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,7 @@ namespace Rococo
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IEmailSender, EmailSender>();
+            services.Configure<StripeSetting>(Configuration.GetSection("Stripe"));
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.ConfigureApplicationCookie(options =>
@@ -78,6 +80,7 @@ namespace Rococo
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
+            StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["Secretkey"];
 
             app.UseEndpoints(endpoints =>
             {
