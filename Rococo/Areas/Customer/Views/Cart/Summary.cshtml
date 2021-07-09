@@ -1,6 +1,7 @@
 ﻿@model Rococo.Models.ViewModels.ShoppingCartVM
 @using Microsoft.Extensions.Options
 
+@inject IOptions<Rococo.Utility.StripeSetting> Stripe
 
 <form method="post">
     <br />
@@ -108,7 +109,23 @@
                         <div class="col-12 col-md-8 pt-2">
                             <p style="color:maroon; font-size:14px;">Estimate Arrival Date: @DateTime.Now.AddDays(7).ToShortDateString() - @DateTime.Now.AddDays(14).ToShortDateString()</p>
                         </div>
-                        <div>
+                        <div class="col-12 col-md-4">
+                            @{
+                                var OrderTotalForStripe = Model.OrderHeader.OrderTotal * 100;
+                            }
+                            <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                                    data-key="@Stripe.Value.Publishablekey"
+                                    data-amount="@OrderTotalForStripe"
+                                    data-name="Rococo Book"
+                                    data-label="Place Order"
+                                    data-description="Get Books, For Less"
+                                    data-locale="auto"
+                                    data-allow-remember-me="false"
+                                    data-image="https://stripe.com/img/documentation/checkout/marketplace.png"></script>
+                            <script>
+                                // hide defalut button provided by stripe
+                                document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+                            </script>
                             <button type="submit" value="Place Order" class="btn btn-success form-control">Place Order</button>
                         </div>
                     </div>
