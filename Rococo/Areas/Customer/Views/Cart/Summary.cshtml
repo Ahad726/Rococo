@@ -88,13 +88,14 @@
                                 <ul class="list-group mb-3">
                                     @foreach (var details in Model.ListCart)
                                     {
-                        <li class="list-group-item d-flex justify-content-between">
-                            <div>
-                                <h6 class="my-0">@details.Product.Title</h6>
-                                <small class="text-muted">Quantity: @details.Count</small>
-                            </div>
-                            <span class="text-muted">$@(details.Price * details.Count) </span>
-                        </li>}
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="my-0">@details.Product.Title</h6>
+                                            <small class="text-muted">Quantity: @details.Count</small>
+                                        </div>
+                                        <span class="text-muted">$@(details.Price * details.Count) </span>
+                                    </li>
+}
                                     <li class="list-group-item d-flex justify-content-between bg-light">
                                         <small class="text-info">Total (USD)</small>
                                         <strong class="text-info">$@(Model.OrderHeader.OrderTotal)</strong>
@@ -114,6 +115,9 @@
                                 // stripe counts price in cents so multiply by 100 to convert into dollar
                                 var OrderTotalForStripe = Model.OrderHeader.OrderTotal * 100;
                             }
+
+                            @if (Model.OrderHeader.ApplicationUser.Company == null ||
+                           !Model.OrderHeader.ApplicationUser.Company.IsAuthorizedCompany){
                             <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                     data-key="@Stripe.Value.Publishablekey"
                                     data-amount="@OrderTotalForStripe"
@@ -122,13 +126,19 @@
                                     data-description="Get Books, For Less"
                                     data-locale="auto"
                                     data-allow-remember-me="false"
-                                    data-image="https://stripe.com/img/documentation/checkout/marketplace.png">
-                            </script>
+                                    data-image="https://stripe.com/img/documentation/checkout/marketplace.png"></script>
                             <script>
                                 // hide defalut button provided by stripe
                                 document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
                             </script>
                             <button type="submit" value="Place Order" class="btn btn-success form-control">Place Order</button>
+                            }
+                            else
+                            {
+                            <button type="submit" value="Place Order" class="btn btn-primary form-control">Place Order</button>
+                            }
+
+
                         </div>
                     </div>
                 </div>

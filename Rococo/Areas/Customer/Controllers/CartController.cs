@@ -259,11 +259,14 @@ namespace Rococo.Areas.Customer.Controllers
 
             if (string.IsNullOrEmpty(stripeToken))
             {
-                
+                // order will be created for delayed payment for authorized company
+                shoppingCartVM.OrderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
+                shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+                shoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
             }
             else
             {
-                // Process the payment
+                // Process the instant payment  
                 var options = new ChargeCreateOptions
                 {
                     Amount = Convert.ToInt32(shoppingCartVM.OrderHeader.OrderTotal * 100),
