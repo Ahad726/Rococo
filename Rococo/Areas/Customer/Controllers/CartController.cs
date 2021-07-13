@@ -95,6 +95,7 @@ namespace Rococo.Areas.Customer.Controllers
                 ModelState.AddModelError(string.Empty, "Verification email is empty!");
             }
 
+            // send email if user email is not confirmed
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var callbackUrl = Url.Action(
@@ -230,6 +231,7 @@ namespace Rococo.Areas.Customer.Controllers
                                            .GetAll(c => c.ApplicationUserId == claim.Value,
                                            includeProperties:"Product");
 
+            // placed order with payment and order status pending
             shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
             shoppingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
             shoppingCartVM.OrderHeader.ApplicationUserId = claim.Value;
@@ -267,6 +269,7 @@ namespace Rococo.Areas.Customer.Controllers
             if (string.IsNullOrEmpty(stripeToken))
             {
                 // order will be created for delayed payment for authorized company
+                // payment incomplete . Update payment status to Due payment
                 shoppingCartVM.OrderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
                 shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
                 shoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
@@ -286,6 +289,7 @@ namespace Rococo.Areas.Customer.Controllers
                 Charge charge = service.Create(options);
                 if (charge.BalanceTransactionId == null)
                 {
+                    // payment rejected . Update payment status to reject
                     shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusRejected;
                 }
                 else
@@ -294,6 +298,8 @@ namespace Rococo.Areas.Customer.Controllers
                 }
                 if (charge.Status.ToLower() == "succeeded")
                 {
+                    //payment succeed. Update order and Payment status to Approved.
+
                     shoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
                     shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusApproved;
                     shoppingCartVM.OrderHeader.PaymentDate = DateTime.Now;
