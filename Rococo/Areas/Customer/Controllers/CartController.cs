@@ -212,6 +212,13 @@ namespace Rococo.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Summary(ShoppingCartVM shoppingCartVM, string stripeToken)
         {
+            if (!ModelState.IsValid)
+            {
+                //  return RedirectToAction(nameof(Summary));
+                ModelState.AddModelError(string.Empty, "Invalid User Information.");
+                 return RedirectToAction(nameof(Summary));
+
+            }
             // Get User claim
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -272,7 +279,7 @@ namespace Rococo.Areas.Customer.Controllers
                     Amount = Convert.ToInt32(shoppingCartVM.OrderHeader.OrderTotal * 100),
                     Currency = "usd",
                     Description = "Order Id : " + shoppingCartVM.OrderHeader.Id,
-                    Source = stripeToken
+                    Source = stripeToken,
                 };
 
                 var service = new ChargeService();
