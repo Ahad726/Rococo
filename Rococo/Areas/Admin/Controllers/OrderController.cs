@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Rococo.DataAccess.Repository.IRepository;
 using Rococo.Models;
+using Rococo.Models.ViewModels;
 using Rococo.Utility;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,9 @@ namespace Rococo.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+
+        [BindProperty]
+        public OrderDetailsVM   OrderVM { get; set; }
         public OrderController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -24,6 +28,21 @@ namespace Rococo.Areas.Admin.Controllers
         {
             return View();
         }
+
+
+        public IActionResult Details(int id)
+        {
+            OrderVM = new OrderDetailsVM
+            {
+                OrderHeader = _unitOfWork.OrderHeader.GetAll(o => o.Id == id,
+                                    includeProperties: "ApplicationUser").FirstOrDefault(),
+
+                OrderDetails = _unitOfWork.OrderDetails.GetAll(d => d.OrderId == id,
+                                                includeProperties: "Product")
+            };
+            return View(OrderVM);
+        }
+
 
         #region API Calls
         public IActionResult GetOrderList(string status)
