@@ -294,7 +294,7 @@ namespace Rococo.Areas.Customer.Controllers
                 }
                 else
                 {
-                    shoppingCartVM.OrderHeader.TransactionId = charge.BalanceTransactionId;
+                    shoppingCartVM.OrderHeader.TransactionId = charge.Id;
                 }
                 if (charge.Status.ToLower() == "succeeded")
                 {

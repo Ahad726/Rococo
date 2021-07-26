@@ -71,7 +71,7 @@ namespace Rococo.Areas.Admin.Controllers
                 }
                 else
                 {
-                    orderHeader.TransactionId = charge.BalanceTransactionId;
+                    orderHeader.TransactionId = charge.Id;
                 }
                 if (charge.Status.ToLower() == "succeeded")
                 {
