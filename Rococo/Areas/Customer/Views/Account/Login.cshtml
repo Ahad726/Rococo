@@ -1,0 +1,30 @@
+﻿
+@model Rococo.Models.ViewModels.LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+
+<div id="logreg-forms">
+    <form id="account" method="post">
+        <h3 class="col-12 text-success text-center py-4">
+                <strong>Sign In</strong>
+        </h3>
+
+        <input asp-for="Email" placeholder="Email..." type="email" class="mb-1 form-control" />
+        <input asp-for="Password" placeholder="Password..." type="password" class="form-control" />
+        <button type="submit" class="btn btn-success btn-block"><i class="fas fa-sign-in-alt"></i> Sign in</button>
+
+        <a id="forgot-password" asp-action="#" class="pb-2 text-info">Forgot your password?</a>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl"
+           class="btn btn-primary text-white"><i class="fas fa-user-plus"></i> Register as a new user</a>
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
