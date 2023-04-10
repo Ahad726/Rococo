@@ -27,18 +27,15 @@ namespace Rococo.Areas.Customer.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
         private readonly IUnitOfWork _unitOfWork;
 
         public CartController(
              UserManager<IdentityUser> userManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
             IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _logger = logger;
-            _emailSender = emailSender;
             _unitOfWork = unitOfWork;
         }
 
@@ -104,15 +101,6 @@ namespace Rococo.Areas.Customer.Controllers
                 values: new { area = "Customer", userId = user.Id, code = code },
                 protocol: Request.Scheme);
 
-            await _emailSender.SendEmailAsync(new List<Message>
-            {
-                        new Message
-                        {
-                            Receiver = user.Email,
-                            Subject = "Confirm your email",
-                            Body =  $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
-                        }
-             });
 
             return RedirectToAction(nameof(Index));
         }

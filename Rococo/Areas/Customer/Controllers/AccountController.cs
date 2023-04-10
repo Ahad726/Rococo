@@ -26,7 +26,6 @@ namespace Rococo.Areas.Customer.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -34,14 +33,12 @@ namespace Rococo.Areas.Customer.Controllers
              UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager,
             IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _emailSender = emailSender;
             _roleManager = roleManager;
             _unitOfWork = unitOfWork;
         }
@@ -134,15 +131,7 @@ namespace Rococo.Areas.Customer.Controllers
                         values: new { area = "Customer", userId = user.Id, code = code },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(new List<Message>
-                    {
-                        new Message
-                        {
-                            Receiver = model.Email,
-                            Subject = "Confirm your email",
-                            Body =  $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
-                        }
-                    });
+                  
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Rococo.DataAccess.Data;
 using Rococo.DataAccess.Repository;
 using Rococo.DataAccess.Repository.IRepository;
+using Rococo.DataSeed;
 using Rococo.Utility;
 using Stripe;
 using System;
@@ -39,7 +40,6 @@ namespace Rococo
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddSingleton<IEmailSender, EmailSender>();
             services.Configure<StripeSetting>(Configuration.GetSection("Stripe"));
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -51,6 +51,8 @@ namespace Rococo
             }
             );
 
+            services.AddTransient<IDbInitializer, DbInitializer>();
+
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -60,7 +62,7 @@ namespace Rococo
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {
@@ -81,6 +83,8 @@ namespace Rococo
             app.UseAuthentication();
             app.UseAuthorization();
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["Secretkey"];
+
+            dbInitializer.InitializeAsync();
 
             app.UseEndpoints(endpoints =>
             {
